@@ -13,6 +13,12 @@ document.addEventListener("DOMContentLoaded", () => {
       // Clear loading message
       activitiesList.innerHTML = "";
 
+      // Clear existing options except the placeholder
+      // (so reloading doesn't duplicate options)
+      while (activitySelect.options.length > 1) {
+        activitySelect.remove(1);
+      }
+
       // Populate activities list
       Object.entries(activities).forEach(([name, details]) => {
         const activityCard = document.createElement("div");
@@ -23,7 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
           ? `<div class="participants">
               <h5>Current Participants:</h5>
               <ul>
-                ${details.participants.map(email => `<li>${email}</li>`).join('')}
+                ${details.participants.map(email => `<li><span class="participant-email">${email}</span> <button class="unregister-btn" data-activity="${encodeURIComponent(name)}" data-email="${encodeURIComponent(email)}" aria-label="Unregister ${email}">✖</button></li>`).join('')}
               </ul>
             </div>`
           : '<p class="no-participants">No participants yet</p>';
@@ -37,6 +43,33 @@ document.addEventListener("DOMContentLoaded", () => {
         `;
 
         activitiesList.appendChild(activityCard);
+
+          // Attach click listeners for unregister buttons (delegation could be used but simplest here)
+          const unregisterButtons = activityCard.querySelectorAll('.unregister-btn');
+          unregisterButtons.forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+              const activityName = decodeURIComponent(btn.dataset.activity);
+              const email = decodeURIComponent(btn.dataset.email);
+
+              try {
+                const res = await fetch(`/activities/${encodeURIComponent(activityName)}/participants?email=${encodeURIComponent(email)}`, {
+                  method: 'DELETE',
+                });
+
+                const json = await res.json();
+                if (res.ok) {
+                  // Refresh activities list to reflect change
+                  fetchActivities();
+                } else {
+                  console.error('Failed to unregister:', json);
+                  alert(json.detail || 'Failed to unregister participant');
+                }
+              } catch (err) {
+                console.error('Error while unregistering:', err);
+                alert('Error while unregistering. See console for details.');
+              }
+            });
+          });
 
         // Add option to select dropdown
         const option = document.createElement("option");
@@ -71,6 +104,8 @@ document.addEventListener("DOMContentLoaded", () => {
         messageDiv.textContent = result.message;
         messageDiv.className = "success";
         signupForm.reset();
+        // Refresh activities so the newly signed-up participant appears immediately
+        fetchActivities();
       } else {
         messageDiv.textContent = result.detail || "An error occurred";
         messageDiv.className = "error";
