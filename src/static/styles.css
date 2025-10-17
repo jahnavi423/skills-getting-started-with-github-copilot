@@ -70,6 +70,55 @@ section h3 {
   color: #0066cc;
 }
 
+.activity-card h5 {
+  color: #1a237e;
+  margin: 15px 0 8px 0;
+  font-size: 0.95em;
+}
+
+.activity-card .participants ul {
+  list-style-type: none;
+  padding-left: 15px;
+}
+
+.activity-card .participants li {
+  color: #555;
+  font-size: 0.9em;
+  margin-bottom: 4px;
+  position: relative;
+}
+
+/* hide default bullet (we're using list-style: none above) and align content */
+.activity-card .participants li::before {
+  display: none;
+}
+
+.participant-email {
+  margin-right: 8px;
+}
+
+.unregister-btn {
+  background: transparent;
+  border: none;
+  color: #c62828;
+  cursor: pointer;
+  font-size: 0.95em;
+  padding: 2px 6px;
+  border-radius: 3px;
+  transition: background-color 0.15s ease;
+}
+
+.unregister-btn:hover {
+  background-color: rgba(198, 40, 40, 0.08);
+}
+
+.activity-card .no-participants {
+  color: #666;
+  font-style: italic;
+  font-size: 0.9em;
+  margin-top: 10px;
+}
+
 .activity-card p {
   margin-bottom: 8px;
 }
